@@ -235,6 +235,9 @@ fn sidebar(ui: &Rc<Ui>) -> gtk::Box {
         true,
     )
     .expect("Bundled Meshtastic wordmark");
+    let pixbuf = pixbuf
+        .scale_simple(170, 18, gtk::gdk_pixbuf::InterpType::Bilinear)
+        .expect("Compact wordmark dimensions");
     let logo = gtk::Picture::for_paintable(&gtk::gdk::Texture::for_pixbuf(&pixbuf));
     logo.set_content_fit(gtk::ContentFit::Contain);
     logo.set_size_request(170, 22);
