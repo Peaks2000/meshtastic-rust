@@ -156,8 +156,6 @@ pub fn build(app: &gtk::Application) {
     heading.append(&ui.title);
     header.append(&heading);
     header.append(&ui.status);
-    let controls = gtk::WindowControls::new(gtk::PackType::End);
-    header.append(&controls);
     main.append(&header);
     let banner_box = gtk::Box::new(gtk::Orientation::Horizontal, 12);
     margins(&banner_box, 12, 24);
