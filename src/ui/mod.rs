@@ -60,6 +60,10 @@ pub struct Ui {
 }
 
 pub fn build(app: &gtk::Application) {
+    let display = gtk::gdk::Display::default().expect("GTK display");
+    gtk::IconTheme::for_display(&display)
+        .add_resource_path("/io/github/meshtasticgtk/Client/icons");
+    gtk::Window::set_default_icon_name("io.github.meshtasticgtk.Client");
     let provider = gtk::CssProvider::new();
     provider.load_from_data(include_str!("../../assets/style.css"));
     gtk::style_context_add_provider_for_display(
@@ -224,7 +228,19 @@ fn sidebar(ui: &Rc<Ui>) -> gtk::Box {
     sidebar.set_width_request(220);
     let brand = gtk::Box::new(gtk::Orientation::Vertical, 5);
     margins(&brand, 30, 22);
-    brand.append(&label("◈  MESHTASTIC", "brand"));
+    let pixbuf = gtk::gdk_pixbuf::Pixbuf::from_resource_at_scale(
+        "/io/github/meshtasticgtk/Client/meshtastic-wordmark.svg",
+        170,
+        22,
+        true,
+    )
+    .expect("Bundled Meshtastic wordmark");
+    let logo = gtk::Picture::for_paintable(&gtk::gdk::Texture::for_pixbuf(&pixbuf));
+    logo.set_content_fit(gtk::ContentFit::Contain);
+    logo.set_size_request(170, 22);
+    logo.set_halign(gtk::Align::Start);
+    logo.set_tooltip_text(Some("Meshtastic"));
+    brand.append(&logo);
     sidebar.append(&brand);
     let top = gtk::Box::new(gtk::Orientation::Vertical, 5);
     margins(&top, 8, 12);

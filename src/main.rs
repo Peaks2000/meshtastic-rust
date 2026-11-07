@@ -12,6 +12,8 @@ mod ui;
 use gtk::prelude::*;
 
 fn main() -> gtk::glib::ExitCode {
+    gtk::gio::resources_register_include!("meshtastic.gresource")
+        .expect("Bundled application logos");
     if std::env::args().any(|arg| arg == "--probe-usb") {
         return backend::probe_usb();
     }

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/io/github/meshtasticgtk/Client">
+    <file>meshtastic-wordmark.svg</file>
+    <file alias="icons/scalable/apps/io.github.meshtasticgtk.Client.svg">io.github.meshtasticgtk.Client.svg</file>
+  </gresource>
+</gresources>
