@@ -10,6 +10,7 @@ A native Rust and GTK4 desktop client for Meshtastic nodes.
 - App themes, notifications, and local message history.
 - ESP32 firmware updates and factory reset + flash, with backups and verification.
 - UF2 updates with automatic drive detection.
+- Recovery-device detection and bootloop recovery for supported ESP32 and UF2 boards.
 
 ## Pull Requests
   Please do make pull requests if something does not work. I do not care if you use AI as long as the code is not complete rubbish.

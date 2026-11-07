@@ -2,6 +2,7 @@ mod backend;
 mod flashing;
 mod model;
 mod protocol;
+mod recovery;
 mod settings;
 mod storage;
 mod transport;

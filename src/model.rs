@@ -103,4 +103,5 @@ pub enum Event {
     Log(String),
     Firmware(String),
     FlashFinished(bool),
+    RecoveryDevices(Result<Vec<crate::recovery::Device>, String>),
 }

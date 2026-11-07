@@ -465,6 +465,42 @@ pub fn flash_page(ui: &Rc<Ui>) -> gtk::ScrolledWindow {
     mode.set_tooltip_text(Some("Both modes use an application firmware file. Factory mode clears settings after firmware verification."));
     mode.set_active(Some(0));
     options.append(&mode);
+    ui.recovery_picker
+        .append(Some("normal"), "Connected node / automatic UF2 drive");
+    ui.recovery_picker.set_active(Some(0));
+    options.append(&ui.recovery_picker);
+    options.append(&ui.recovery_scan);
+    let weak = Rc::downgrade(ui);
+    ui.recovery_scan.connect_clicked(move |button| {
+        if let Some(ui) = weak.upgrade() {
+            if ui.flash_busy.get() {
+                return;
+            }
+            button.set_sensitive(false);
+            ui.flash_button.set_sensitive(false);
+            ui.flash_status.set_text("Scanning recovery devices…");
+            let mounts = gtk::gio::VolumeMonitor::get()
+                .mounts()
+                .into_iter()
+                .filter_map(|mount| mount.root().path())
+                .collect();
+            let skip = {
+                let state = ui.state.borrow();
+                match &state.active_connection {
+                    Some(crate::model::Connection::Usb { port, .. }) if state.connected => {
+                        Some(port.clone())
+                    }
+                    _ => None,
+                }
+            };
+            let events = ui.events.clone();
+            std::thread::spawn(move || {
+                let _ = events.send(Event::RecoveryDevices(
+                    crate::recovery::scan(mounts, skip).map_err(|error| format!("{error:#}")),
+                ));
+            });
+        }
+    });
     let file = Rc::new(RefCell::new(None::<PathBuf>));
     let file_label = label("No firmware selected", "muted");
     file_label.set_ellipsize(gtk::pango::EllipsizeMode::Middle);
@@ -541,6 +577,7 @@ pub fn flash_page(ui: &Rc<Ui>) -> gtk::ScrolledWindow {
                             board: node.hardware.clone(),
                             node: node.num,
                             port: port.clone(),
+                            recovery_chip: None,
                         })
                     }
                     _ => None,
@@ -552,7 +589,9 @@ pub fn flash_page(ui: &Rc<Ui>) -> gtk::ScrolledWindow {
                 .filter_map(|mount| mount.root().path())
                 .collect::<Vec<_>>();
             let selected_mode = if mode.active_id().as_deref() == Some("factory") { flashing::FlashMode::Factory } else { flashing::FlashMode::Update };
-            let plan = match flashing::prepare(&firmware, target, &mounts, selected_mode) {
+            let recovery = ui.recovery_picker.active_id().and_then(|id| id.parse::<usize>().ok()).and_then(|index| ui.recovery_devices.borrow().get(index).cloned());
+            let result = if let Some(device) = recovery.as_ref() { flashing::prepare_recovery(&firmware, device, selected_mode) } else { flashing::prepare(&firmware, target, &mounts, selected_mode) };
+            let plan = match result {
                 Ok(plan) => plan,
                 Err(error) => {
                     ui.notice(&format!("{error:#}"));
@@ -568,7 +607,7 @@ pub fn flash_page(ui: &Rc<Ui>) -> gtk::ScrolledWindow {
                 .secondary_text(format!(
                     "{}\n\n{}",
                     plan.summary(),
-                    if plan.is_factory() { "This clears settings, channels, keys, and saved node data after the firmware is verified. Keep USB connected." } else { "Settings will be kept. Keep USB connected until the update finishes." }
+                    if recovery.is_some() { "Recovery: the bootloader may only identify the chip, not the board model. Confirm this firmware is for your exact board. Factory mode clears settings. Keep USB connected." } else if plan.is_factory() { "This clears settings, channels, keys, and saved node data after the firmware is verified. Keep USB connected." } else { "Settings will be kept. Keep USB connected until the update finishes." }
                 ))
                 .build();
             let weak = Rc::downgrade(&ui);

@@ -18,6 +18,7 @@ pub struct UsbTarget {
     pub board: String,
     pub node: u32,
     pub port: String,
+    pub recovery_chip: Option<String>,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -36,6 +37,7 @@ pub enum FlashPlan {
         image: Arc<[u8]>,
     },
     Uf2 {
+        recovery: bool,
         volume: PathBuf,
         identity: String,
         name: String,
@@ -59,9 +61,19 @@ impl FlashPlan {
                 "{name}\n{} · {}\nA backup will be saved before updating.",
                 target.board, target.port
             ),
-            Self::Uf2 { name, volume, .. } => format!(
-                "{name}\n{}\nThe installed application will be backed up first.",
-                volume.display()
+            Self::Uf2 {
+                name,
+                volume,
+                recovery,
+                ..
+            } => format!(
+                "{name}\n{}\n{}",
+                volume.display(),
+                if *recovery {
+                    "Bootloader metadata and any readable application will be backed up."
+                } else {
+                    "The installed application will be backed up first."
+                }
             ),
         }
     }
@@ -110,6 +122,49 @@ pub fn prepare(
     mounts: &[PathBuf],
     mode: FlashMode,
 ) -> Result<FlashPlan> {
+    prepare_inner(firmware, target, mounts, mode, false)
+}
+
+pub fn prepare_recovery(
+    firmware: &Path,
+    device: &crate::recovery::Device,
+    mode: FlashMode,
+) -> Result<FlashPlan> {
+    match device {
+        crate::recovery::Device::Esp { port, chip, node } => {
+            let name = firmware
+                .file_name()
+                .and_then(|v| v.to_str())
+                .context("Invalid filename")?;
+            prepare_inner(
+                firmware,
+                Some(UsbTarget {
+                    board: firmware_board(name)?,
+                    node: *node,
+                    port: port.clone(),
+                    recovery_chip: Some(chip.clone()),
+                }),
+                &[],
+                mode,
+                true,
+            )
+        }
+        crate::recovery::Device::Uf2 { volume, .. } => {
+            prepare_inner(firmware, None, std::slice::from_ref(volume), mode, true)
+        }
+        crate::recovery::Device::Other { .. } => bail!(
+            "This DFU interface is detected but not supported for direct flashing. Enter the board's UF2 or ESP32 ROM recovery mode first."
+        ),
+    }
+}
+
+fn prepare_inner(
+    firmware: &Path,
+    target: Option<UsbTarget>,
+    mounts: &[PathBuf],
+    mode: FlashMode,
+    recovery: bool,
+) -> Result<FlashPlan> {
     let metadata = fs::metadata(firmware).context("Choose a readable firmware file")?;
     if !metadata.is_file() || metadata.len() < 24 || metadata.len() > MAX_IMAGE {
         bail!("Invalid firmware file size");
@@ -137,6 +192,13 @@ pub fn prepare(
                 );
             }
             let chip = esp_chip(&image)?.to_string();
+            if target
+                .recovery_chip
+                .as_ref()
+                .is_some_and(|actual| actual != &chip)
+            {
+                bail!("Firmware chip does not match the detected recovery device");
+            }
             python().context("Install the flashing helper using tools/setup-esptool.sh")?;
             Ok(FlashPlan::Esp {
                 mode,
@@ -172,9 +234,14 @@ pub fn prepare(
                 );
             }
             let (volume, identity) = candidates.remove(0);
-            let current = fs::read(volume.join("CURRENT.UF2")).context("Cannot back up the installed application from this update drive; nothing was written")?;
-            validate_current_uf2(&current, info.family, info.start)?;
+            if recovery {
+                validate_recovery_uf2(&volume, &identity, &info)?;
+            } else {
+                let current = fs::read(volume.join("CURRENT.UF2")).context("Cannot back up the installed application from this update drive; nothing was written")?;
+                validate_current_uf2(&current, info.family, info.start)?;
+            }
             Ok(FlashPlan::Uf2 {
+                recovery,
                 volume,
                 identity,
                 name,
@@ -277,7 +344,64 @@ fn validate_current_uf2(image: &[u8], family: u32, start: u32) -> Result<()> {
     }
     Ok(())
 }
+
+fn validate_recovery_uf2(volume: &Path, identity: &str, incoming: &Uf2Info) -> Result<()> {
+    let current = match fs::read(volume.join("CURRENT.UF2")) {
+        Ok(bytes) => validate_uf2(&bytes).ok(),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
+        Err(error) => return Err(error).context("Cannot read the existing firmware for recovery"),
+    };
+    let expected = match incoming.family {
+        0xada52840
+            if identity
+                .lines()
+                .any(|line| line.starts_with("SoftDevice:") && line.contains("7.3.0")) =>
+        {
+            Some(0x27000)
+        }
+        0xada52840
+            if identity
+                .lines()
+                .any(|line| line.starts_with("SoftDevice:") && line.contains("6.1.1")) =>
+        {
+            Some(0x26000)
+        }
+        0xe48bff56 => Some(0x10000000),
+        _ => current
+            .filter(|old| old.family == incoming.family)
+            .map(|old| old.start),
+    }
+    .context(
+        "Cannot establish a safe application address from this bootloader; recovery blocked",
+    )?;
+    if incoming.start != expected {
+        bail!("Firmware start address is incompatible with this bootloader/SoftDevice");
+    }
+    Ok(())
+}
 fn volume_matches(identity: &str, board: &str, family: u32) -> bool {
+    // Exact first-party Board-IDs; do not match a Pro/variant board by substring.
+    if family == 0xada52840 {
+        let id = identity
+            .lines()
+            .find_map(|line| line.strip_prefix("Board-ID:"))
+            .map(normalize);
+        let aliases: &[&str] = match id.as_deref() {
+            Some("wisblockrak4631board") => &["rak4631", "wisblockrak4631"],
+            Some("htn5262") => &["heltect114", "heltecmeshnodet114"],
+            Some("nrf52840t1000ev1") => {
+                &["t1000e", "sensecapt1000e", "seeedsensecapcardtrackert1000e"]
+            }
+            Some("nrf52840techov1") => &["techo", "lilygotecho"],
+            Some("nrf52840seeedxiaov1") => &["xiaonrf52840", "seeedxiaonrf52840"],
+            Some("nrf52840promicro") => &["promicro", "promicronrf52840"],
+            Some("trackerl1") => &["wiotrackerl1", "seeedwiotrackerl1"],
+            _ => &[],
+        };
+        if !aliases.is_empty() {
+            return aliases.contains(&board);
+        }
+    }
     let chip_matches = match family {
         0xada52840 => identity.to_lowercase().contains("nrf52840"),
         0xe48bff56 => identity.to_lowercase().contains("rp2040"),
@@ -333,7 +457,7 @@ fn installed_helpers() -> Option<PathBuf> {
     root.join("flash-esp.py").is_file().then_some(root)
 }
 
-fn flash_helper() -> PathBuf {
+pub(crate) fn flash_helper() -> PathBuf {
     installed_helpers()
         .map(|root| root.join("flash-esp.py"))
         .unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).join("tools/flash-esp.py"))
@@ -412,6 +536,9 @@ fn execute(plan: &FlashPlan, events: &Sender<Event>) -> Result<()> {
             } else {
                 command.arg("-u").arg(flash_helper());
             }
+            if target.recovery_chip.is_some() {
+                command.arg("--recovery");
+            }
             let mut child = command
                 .args([
                     "--port",
@@ -454,6 +581,7 @@ fn execute(plan: &FlashPlan, events: &Sender<Event>) -> Result<()> {
             }
         }
         FlashPlan::Uf2 {
+            recovery,
             volume,
             identity,
             name,
@@ -467,10 +595,23 @@ fn execute(plan: &FlashPlan, events: &Sender<Event>) -> Result<()> {
             if &now != identity || !volume_matches(&now, &board, *family) {
                 bail!("The update drive identity changed; nothing was written");
             }
-            let current = fs::read(volume.join("CURRENT.UF2"))
-                .context("Cannot back up the installed application; nothing was written")?;
-            validate_current_uf2(&current, *family, info.start)?;
-            private_write(&directory.join("original-application.uf2"), &current)?;
+            private_write(&directory.join("INFO_UF2.TXT"), now.as_bytes())?;
+            if *recovery {
+                validate_recovery_uf2(volume, &now, &info)?;
+            }
+            match fs::read(volume.join("CURRENT.UF2")) {
+                Ok(current) => {
+                    if !*recovery {
+                        validate_current_uf2(&current, *family, info.start)?;
+                    }
+                    private_write(&directory.join("original-application.uf2"), &current)?;
+                }
+                Err(error) if *recovery && error.kind() == std::io::ErrorKind::NotFound => {}
+                Err(error) => {
+                    return Err(error)
+                        .context("Cannot back up the installed application; nothing was written");
+                }
+            }
             private_write(&directory.join(name), image)?;
             let _ = events.send(Event::Firmware(format!(
                 "Backup saved to {}",
@@ -502,6 +643,48 @@ fn execute(plan: &FlashPlan, events: &Sender<Event>) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn recovery_handles_missing_or_corrupt_current_application_but_requires_safe_address() {
+        let dir = std::env::temp_dir().join(format!(
+            "meshtastic-uf2-recovery-{:08x}",
+            rand::random::<u32>()
+        ));
+        fs::create_dir(&dir).unwrap();
+        let identity = "Board-ID: WisBlock-RAK4631-Board\nSoftDevice: S140 6.1.1\n";
+        fs::write(dir.join("INFO_UF2.TXT"), identity).unwrap();
+        let firmware = dir.join("firmware-rak4631-2.7.27.uf2");
+        fs::write(&firmware, block(0, 1, 0x26000)).unwrap();
+        let device = crate::recovery::Device::Uf2 {
+            volume: dir.clone(),
+            label: "RAK4631".into(),
+        };
+        assert!(prepare_recovery(&firmware, &device, FlashMode::Update).is_ok());
+        fs::write(dir.join("CURRENT.UF2"), b"corrupt app").unwrap();
+        assert!(prepare_recovery(&firmware, &device, FlashMode::Update).is_ok());
+        assert!(
+            prepare(
+                &firmware,
+                None,
+                std::slice::from_ref(&dir),
+                FlashMode::Update
+            )
+            .is_err()
+        );
+        fs::write(&firmware, block(0, 1, 0x27000)).unwrap();
+        assert!(prepare_recovery(&firmware, &device, FlashMode::Update).is_err());
+        fs::write(
+            dir.join("INFO_UF2.TXT"),
+            "Board-ID: WisBlock-RAK4631-Board\n",
+        )
+        .unwrap();
+        assert!(prepare_recovery(&firmware, &device, FlashMode::Update).is_err());
+        assert!(!volume_matches(
+            "Board-ID: WisBlock-RAK4631Pro-Board",
+            "rak4631",
+            0xada52840
+        ));
+        fs::remove_dir_all(dir).unwrap();
+    }
     fn block(number: u32, total: u32, address: u32) -> Vec<u8> {
         let mut block = vec![0u8; 512];
         block[..8].copy_from_slice(&UF2_MAGIC);

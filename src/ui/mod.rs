@@ -57,6 +57,9 @@ pub struct Ui {
     pub flash_log: gtk::TextBuffer,
     pub flash_status: gtk::Label,
     pub pending_flash: RefCell<Option<crate::flashing::FlashPlan>>,
+    pub recovery_devices: RefCell<Vec<crate::recovery::Device>>,
+    pub recovery_picker: gtk::ComboBoxText,
+    pub recovery_scan: gtk::Button,
 }
 
 pub fn build(app: &gtk::Application) {
@@ -133,6 +136,9 @@ pub fn build(app: &gtk::Application) {
         flash_log: gtk::TextBuffer::new(None),
         flash_status: label("", "muted"),
         pending_flash: RefCell::new(None),
+        recovery_devices: RefCell::new(vec![]),
+        recovery_picker: gtk::ComboBoxText::new(),
+        recovery_scan: button("Detect recovery devices", ""),
     });
     let root = gtk::Box::new(gtk::Orientation::Horizontal, 0);
     root.add_css_class("workspace");
@@ -512,6 +518,26 @@ impl Ui {
                 } else {
                     "Flash failed — see the output below"
                 });
+            }
+            Event::RecoveryDevices(result) => {
+                self.recovery_scan.set_sensitive(true);
+                self.flash_button.set_sensitive(!self.flash_busy.get());
+                self.recovery_picker.remove_all();
+                self.recovery_picker
+                    .append(Some("normal"), "Connected node / automatic UF2 drive");
+                self.recovery_picker.set_active(Some(0));
+                match result {
+                    Ok(devices) => {
+                        for (index, device) in devices.iter().enumerate() {
+                            self.recovery_picker
+                                .append(Some(&index.to_string()), &device.label());
+                        }
+                        self.flash_status
+                            .set_text(&format!("{} recovery device(s) detected", devices.len()));
+                        *self.recovery_devices.borrow_mut() = devices;
+                    }
+                    Err(error) => self.notice(&error),
+                }
             }
         }
     }

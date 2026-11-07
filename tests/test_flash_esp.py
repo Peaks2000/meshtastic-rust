@@ -143,6 +143,56 @@ class FlashGuards(unittest.TestCase):
             updater.update("FAKE", "esp32s3", 0xA1B2C3D4, self.image, self.backup, factory_reset=True)
         self.erase.assert_not_called()
 
+    def test_recovery_can_replace_missing_app_without_touching_bootloader(self):
+        self.esp.data[0x10000] = 0xFF
+        before = bytes(self.esp.data)
+        with patch.object(updater, "open_recovery_port", return_value=Mock()):
+            updater.update("FAKE", "esp32s3", 0xA1B2C3D4, self.image, self.backup, recovery=True)
+        self.assertEqual(self.backup.read_bytes(), before)
+        self.assertEqual(self.esp.data[:0x10000], before[:0x10000])
+        self.assertEqual(self.esp.data[0x80000:], before[0x80000:])
+        self.assertEqual(self.detect.call_args.kwargs["connect_mode"], "no-reset")
+        self.verify.assert_called_once()
+        self.erase.assert_not_called()
+
+    def test_probe_identifies_rom_without_resetting_or_writing(self):
+        connection = Mock()
+        with patch.object(updater, "open_recovery_port", return_value=connection):
+            result = updater.probe_recovery("FAKE")
+        self.assertEqual(result, {"chip": "esp32s3", "node": 0xA1B2C3D4, "recoverable": True})
+        self.assertEqual(self.detect.call_args.kwargs["connect_mode"], "no-reset")
+        self.esp.hard_reset.assert_not_called()
+        self.write.assert_not_called()
+        self.erase.assert_not_called()
+        connection.close.assert_called_once()
+
+    def test_recovery_port_disables_reset_lines_before_opening(self):
+        connection = Mock()
+        connection.dtr = True
+        connection.rts = True
+        def opened():
+            self.assertFalse(connection.dtr)
+            self.assertFalse(connection.rts)
+        connection.open.side_effect = opened
+        with patch.object(updater.serial, "serial_for_url", return_value=connection) as factory:
+            self.assertIs(updater.open_recovery_port("FAKE"), connection)
+            self.assertTrue(factory.call_args.kwargs["do_not_open"])
+        connection.open.assert_called_once()
+
+    def test_recovery_still_refuses_corrupt_partition_table(self):
+        self.esp.data[0x8000] = 0
+        with patch.object(updater, "open_recovery_port", return_value=Mock()):
+            with self.assertRaisesRegex(ValueError, "partition"):
+                updater.update("FAKE", "esp32s3", 0xA1B2C3D4, self.image, self.backup, recovery=True)
+        self.write.assert_not_called()
+        self.esp.hard_reset.assert_not_called()
+
+    def test_recovery_rechecks_detected_device_identity_before_writing(self):
+        self.esp.node = b"\x00" * 6
+        with patch.object(updater, "open_recovery_port", return_value=Mock()):
+            self.assertRaisesRegex(ValueError, "identity changed", updater.update, "FAKE", "esp32s3", 0xA1B2C3D4, self.image, self.backup, recovery=True)
+        self.write.assert_not_called()
+
     def test_factory_reset_refuses_unknown_partition_layout(self):
         # Valid table, but filesystem uses an unsupported custom subtype.
         self.esp.data[0x8000 + 2 * 32 + 3] = 0x83

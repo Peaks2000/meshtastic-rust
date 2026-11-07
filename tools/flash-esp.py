@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """One-session, update-only Espressif helper. Never erase all flash or force checks."""
 import argparse
+import json
+import serial
 import hashlib
 import os
 from pathlib import Path
@@ -101,15 +103,41 @@ def protected_regions(size, writable):
     return regions
 
 
-def update(port, chip, node, image_path, backup_path, factory_reset=False):
+def open_recovery_port(port):
+    # Set control lines before opening: discovery must not deliberately reset a radio.
+    connection = serial.serial_for_url(port, baudrate=115200, timeout=0.3, exclusive=True, do_not_open=True)
+    connection.dtr = False
+    connection.rts = False
+    connection.open()
+    return connection
+
+
+def probe_recovery(port):
+    connection = open_recovery_port(port)
+    try:
+        esp = esptool.detect_chip(port=connection, baud=115200, connect_mode="no-reset", connect_attempts=1)
+        chip = esp.CHIP_NAME.lower().replace("-", "")
+        locked = esp.secure_download_mode or esp.get_secure_boot_enabled() or esp.get_flash_encryption_enabled()
+        node = 0 if locked else int.from_bytes(bytes(esp.read_mac())[-4:], "big")
+        return {"chip": chip, "node": node, "recoverable": not locked}
+    finally:
+        connection.close()
+
+
+def update(port, chip, node, image_path, backup_path, factory_reset=False, recovery=False):
     # Parse and validate the pinned image before opening the serial device.
     data = Path(image_path).read_bytes()
     image = checked_image(chip, data)
     esp = None
+    recovery_port = None
     write_started = False
     reset_done = False
     try:
-        esp = esptool.detect_chip(port=port, baud=115200, connect_mode="default-reset")
+        if recovery:
+            recovery_port = open_recovery_port(port)
+            esp = esptool.detect_chip(port=recovery_port, baud=115200, connect_mode="no-reset", connect_attempts=1)
+        else:
+            esp = esptool.detect_chip(port=port, baud=115200, connect_mode="default-reset")
         actual_chip = esp.CHIP_NAME.lower().replace("-", "")
         if actual_chip != chip or image.chip_id != esp.IMAGE_CHIP_ID:
             raise ValueError("The physical chip does not match the firmware")
@@ -132,7 +160,7 @@ def update(port, chip, node, image_path, backup_path, factory_reset=False):
         write_private(backup_path, backup)
         print(f"Backup saved: {backup_path}", flush=True)
         app_start, app_end = application_partition(backup, len(data))
-        if backup[app_start:app_start + 1] != b"\xe9":
+        if not recovery and backup[app_start:app_start + 1] != b"\xe9":
             raise ValueError("No existing application found; this tool only performs updates")
         reset_regions = factory_regions(backup) if factory_reset else []
         # Both modes leave the bootloader and partition table untouched.
@@ -159,15 +187,28 @@ def update(port, chip, node, image_path, backup_path, factory_reset=False):
         if esp is not None:
             # A failed preflight returns to the original application. An interrupted
             # write stays in the ROM loader so a partial app is not presented as success.
-            if not write_started and not reset_done:
+            if not write_started and not reset_done and not recovery:
                 try:
                     esp.hard_reset()
                 except Exception:
                     pass
             esp._port.close()
+        if recovery_port is not None:
+            recovery_port.close()
 
 
 def main():
+    if "--probe-recovery" in sys.argv:
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--probe-recovery", action="store_true")
+        parser.add_argument("--port", required=True)
+        args = parser.parse_args()
+        try:
+            print("MESHTASTIC_RECOVERY_JSON:" + json.dumps(probe_recovery(args.port)))
+            return 0
+        except Exception as error:
+            print(f"No supported recovery device: {error}", file=sys.stderr)
+            return 1
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", required=True)
     parser.add_argument("--chip", required=True)
@@ -175,9 +216,10 @@ def main():
     parser.add_argument("--image", type=Path, required=True)
     parser.add_argument("--backup", type=Path, required=True)
     parser.add_argument("--factory-reset", action="store_true")
+    parser.add_argument("--recovery", action="store_true")
     args = parser.parse_args()
     try:
-        update(args.port, args.chip, args.node, args.image, args.backup, factory_reset=args.factory_reset)
+        update(args.port, args.chip, args.node, args.image, args.backup, factory_reset=args.factory_reset, recovery=args.recovery)
     except Exception as error:
         print(f"Update stopped: {error}", file=sys.stderr)
         return 1

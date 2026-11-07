@@ -15,6 +15,8 @@
   Swift application code is not included in this client.
 * Wire framing and BLE UUIDs follow the official protocol and transport references:
   <https://github.com/meshtastic/rust> and <https://meshtastic.org/docs/development/>.
+* UF2 recovery Board-IDs follow the first-party board definitions in
+  <https://github.com/meshtastic/nRF52_Bootloader/tree/master/src/boards>.
 * ESP32 flashing uses the official Espressif esptool:
   <https://github.com/espressif/esptool>.
 * Linux packages bundle CPython 3.12 from
