@@ -1,0 +1,29 @@
+name: Checks
+on: [push, pull_request]
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Native dependencies
+        run: sudo apt-get update && sudo apt-get install -y libgtk-4-dev libdbus-1-dev pkg-config xvfb
+      - name: Formatting
+        run: cargo fmt --all -- --check
+      - name: Lint
+        run: cargo clippy --locked --all-targets -- -D warnings
+      - name: Protocol and simulated-radio tests
+        run: cargo test --locked
+      - name: Firmware helper tests (simulated hardware)
+        run: |
+          bash tools/setup-esptool.sh
+          tools/esptool/bin/python -m unittest discover -s tests -p 'test_flash_esp.py'
+      - name: Build and GTK smoke check
+        run: |
+          cargo build --locked
+          MESHTASTIC_UI_SMOKE=1 GSK_RENDERER=cairo xvfb-run -a ./target/debug/meshtastic-gtk

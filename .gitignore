@@ -1,0 +1,9 @@
+/target/
+*.log
+/tools/esptool/
+/artifacts/
+__pycache__/
+*.pyc
+/firmware-backups/
+.env
+.env.*

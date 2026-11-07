@@ -1,0 +1,1157 @@
+[
+  {
+    "message": "meshtastic.Config.BluetoothConfig",
+    "tag": 1,
+    "field": "enabled"
+  },
+  {
+    "message": "meshtastic.Config.BluetoothConfig",
+    "tag": 2,
+    "field": "mode"
+  },
+  {
+    "message": "meshtastic.Config.BluetoothConfig",
+    "tag": 3,
+    "field": "fixed_pin"
+  },
+  {
+    "message": "meshtastic.Config.DeviceConfig",
+    "tag": 1,
+    "field": "role"
+  },
+  {
+    "message": "meshtastic.Config.DeviceConfig",
+    "tag": 2,
+    "field": "serial_enabled"
+  },
+  {
+    "message": "meshtastic.Config.DeviceConfig",
+    "tag": 4,
+    "field": "button_gpio"
+  },
+  {
+    "message": "meshtastic.Config.DeviceConfig",
+    "tag": 5,
+    "field": "buzzer_gpio"
+  },
+  {
+    "message": "meshtastic.Config.DeviceConfig",
+    "tag": 6,
+    "field": "rebroadcast_mode"
+  },
+  {
+    "message": "meshtastic.Config.DeviceConfig",
+    "tag": 7,
+    "field": "node_info_broadcast_secs"
+  },
+  {
+    "message": "meshtastic.Config.DeviceConfig",
+    "tag": 8,
+    "field": "double_tap_as_button_press"
+  },
+  {
+    "message": "meshtastic.Config.DeviceConfig",
+    "tag": 9,
+    "field": "is_managed"
+  },
+  {
+    "message": "meshtastic.Config.DeviceConfig",
+    "tag": 10,
+    "field": "disable_triple_click"
+  },
+  {
+    "message": "meshtastic.Config.DeviceConfig",
+    "tag": 11,
+    "field": "tzdef"
+  },
+  {
+    "message": "meshtastic.Config.DeviceConfig",
+    "tag": 12,
+    "field": "led_heartbeat_disabled"
+  },
+  {
+    "message": "meshtastic.Config.DeviceConfig",
+    "tag": 13,
+    "field": "buzzer_mode"
+  },
+  {
+    "message": "meshtastic.Config.DisplayConfig",
+    "tag": 1,
+    "field": "screen_on_secs"
+  },
+  {
+    "message": "meshtastic.Config.DisplayConfig",
+    "tag": 2,
+    "field": "gps_format"
+  },
+  {
+    "message": "meshtastic.Config.DisplayConfig",
+    "tag": 3,
+    "field": "auto_screen_carousel_secs"
+  },
+  {
+    "message": "meshtastic.Config.DisplayConfig",
+    "tag": 4,
+    "field": "compass_north_top"
+  },
+  {
+    "message": "meshtastic.Config.DisplayConfig",
+    "tag": 5,
+    "field": "flip_screen"
+  },
+  {
+    "message": "meshtastic.Config.DisplayConfig",
+    "tag": 6,
+    "field": "units"
+  },
+  {
+    "message": "meshtastic.Config.DisplayConfig",
+    "tag": 7,
+    "field": "oled"
+  },
+  {
+    "message": "meshtastic.Config.DisplayConfig",
+    "tag": 8,
+    "field": "displaymode"
+  },
+  {
+    "message": "meshtastic.Config.DisplayConfig",
+    "tag": 9,
+    "field": "heading_bold"
+  },
+  {
+    "message": "meshtastic.Config.DisplayConfig",
+    "tag": 10,
+    "field": "wake_on_tap_or_motion"
+  },
+  {
+    "message": "meshtastic.Config.DisplayConfig",
+    "tag": 11,
+    "field": "compass_orientation"
+  },
+  {
+    "message": "meshtastic.Config.DisplayConfig",
+    "tag": 12,
+    "field": "use_12h_clock"
+  },
+  {
+    "message": "meshtastic.Config.DisplayConfig",
+    "tag": 13,
+    "field": "use_long_node_name"
+  },
+  {
+    "message": "meshtastic.Config.DisplayConfig",
+    "tag": 14,
+    "field": "enable_message_bubbles"
+  },
+  {
+    "message": "meshtastic.Config.LoRaConfig",
+    "tag": 1,
+    "field": "use_preset"
+  },
+  {
+    "message": "meshtastic.Config.LoRaConfig",
+    "tag": 2,
+    "field": "modem_preset"
+  },
+  {
+    "message": "meshtastic.Config.LoRaConfig",
+    "tag": 3,
+    "field": "bandwidth"
+  },
+  {
+    "message": "meshtastic.Config.LoRaConfig",
+    "tag": 4,
+    "field": "spread_factor"
+  },
+  {
+    "message": "meshtastic.Config.LoRaConfig",
+    "tag": 5,
+    "field": "coding_rate"
+  },
+  {
+    "message": "meshtastic.Config.LoRaConfig",
+    "tag": 6,
+    "field": "frequency_offset"
+  },
+  {
+    "message": "meshtastic.Config.LoRaConfig",
+    "tag": 7,
+    "field": "region"
+  },
+  {
+    "message": "meshtastic.Config.LoRaConfig",
+    "tag": 8,
+    "field": "hop_limit"
+  },
+  {
+    "message": "meshtastic.Config.LoRaConfig",
+    "tag": 9,
+    "field": "tx_enabled"
+  },
+  {
+    "message": "meshtastic.Config.LoRaConfig",
+    "tag": 10,
+    "field": "tx_power"
+  },
+  {
+    "message": "meshtastic.Config.LoRaConfig",
+    "tag": 11,
+    "field": "channel_num"
+  },
+  {
+    "message": "meshtastic.Config.LoRaConfig",
+    "tag": 12,
+    "field": "override_duty_cycle"
+  },
+  {
+    "message": "meshtastic.Config.LoRaConfig",
+    "tag": 13,
+    "field": "sx126x_rx_boosted_gain"
+  },
+  {
+    "message": "meshtastic.Config.LoRaConfig",
+    "tag": 14,
+    "field": "override_frequency"
+  },
+  {
+    "message": "meshtastic.Config.LoRaConfig",
+    "tag": 15,
+    "field": "pa_fan_disabled"
+  },
+  {
+    "message": "meshtastic.Config.LoRaConfig",
+    "tag": 104,
+    "field": "ignore_mqtt"
+  },
+  {
+    "message": "meshtastic.Config.LoRaConfig",
+    "tag": 105,
+    "field": "config_ok_to_mqtt"
+  },
+  {
+    "message": "meshtastic.Config.LoRaConfig",
+    "tag": 106,
+    "field": "fem_lna_mode"
+  },
+  {
+    "message": "meshtastic.Config.LoRaConfig",
+    "tag": 107,
+    "field": "serial_hal_only"
+  },
+  {
+    "message": "meshtastic.Config.LoRaConfig",
+    "tag": 103,
+    "field": "ignore_incoming"
+  },
+  {
+    "message": "meshtastic.Config.NetworkConfig",
+    "tag": 1,
+    "field": "wifi_enabled"
+  },
+  {
+    "message": "meshtastic.Config.NetworkConfig",
+    "tag": 3,
+    "field": "wifi_ssid"
+  },
+  {
+    "message": "meshtastic.Config.NetworkConfig",
+    "tag": 4,
+    "field": "wifi_psk"
+  },
+  {
+    "message": "meshtastic.Config.NetworkConfig",
+    "tag": 5,
+    "field": "ntp_server"
+  },
+  {
+    "message": "meshtastic.Config.NetworkConfig",
+    "tag": 6,
+    "field": "eth_enabled"
+  },
+  {
+    "message": "meshtastic.Config.NetworkConfig",
+    "tag": 7,
+    "field": "address_mode"
+  },
+  {
+    "message": "meshtastic.Config.NetworkConfig",
+    "tag": 8,
+    "field": "ipv4_config"
+  },
+  {
+    "message": "meshtastic.Config.NetworkConfig",
+    "tag": 1,
+    "field": "ipv4_config.ip"
+  },
+  {
+    "message": "meshtastic.Config.NetworkConfig",
+    "tag": 2,
+    "field": "ipv4_config.gateway"
+  },
+  {
+    "message": "meshtastic.Config.NetworkConfig",
+    "tag": 3,
+    "field": "ipv4_config.subnet"
+  },
+  {
+    "message": "meshtastic.Config.NetworkConfig",
+    "tag": 4,
+    "field": "ipv4_config.dns"
+  },
+  {
+    "message": "meshtastic.Config.NetworkConfig",
+    "tag": 9,
+    "field": "rsyslog_server"
+  },
+  {
+    "message": "meshtastic.Config.NetworkConfig",
+    "tag": 10,
+    "field": "enabled_protocols"
+  },
+  {
+    "message": "meshtastic.Config.NetworkConfig",
+    "tag": 11,
+    "field": "ipv6_enabled"
+  },
+  {
+    "message": "meshtastic.Config.NetworkConfig.IpV4Config",
+    "tag": 1,
+    "field": "ip"
+  },
+  {
+    "message": "meshtastic.Config.NetworkConfig.IpV4Config",
+    "tag": 2,
+    "field": "gateway"
+  },
+  {
+    "message": "meshtastic.Config.NetworkConfig.IpV4Config",
+    "tag": 3,
+    "field": "subnet"
+  },
+  {
+    "message": "meshtastic.Config.NetworkConfig.IpV4Config",
+    "tag": 4,
+    "field": "dns"
+  },
+  {
+    "message": "meshtastic.Config.PositionConfig",
+    "tag": 1,
+    "field": "position_broadcast_secs"
+  },
+  {
+    "message": "meshtastic.Config.PositionConfig",
+    "tag": 2,
+    "field": "position_broadcast_smart_enabled"
+  },
+  {
+    "message": "meshtastic.Config.PositionConfig",
+    "tag": 3,
+    "field": "fixed_position"
+  },
+  {
+    "message": "meshtastic.Config.PositionConfig",
+    "tag": 4,
+    "field": "gps_enabled"
+  },
+  {
+    "message": "meshtastic.Config.PositionConfig",
+    "tag": 5,
+    "field": "gps_update_interval"
+  },
+  {
+    "message": "meshtastic.Config.PositionConfig",
+    "tag": 6,
+    "field": "gps_attempt_time"
+  },
+  {
+    "message": "meshtastic.Config.PositionConfig",
+    "tag": 7,
+    "field": "position_flags"
+  },
+  {
+    "message": "meshtastic.Config.PositionConfig",
+    "tag": 8,
+    "field": "rx_gpio"
+  },
+  {
+    "message": "meshtastic.Config.PositionConfig",
+    "tag": 9,
+    "field": "tx_gpio"
+  },
+  {
+    "message": "meshtastic.Config.PositionConfig",
+    "tag": 10,
+    "field": "broadcast_smart_minimum_distance"
+  },
+  {
+    "message": "meshtastic.Config.PositionConfig",
+    "tag": 11,
+    "field": "broadcast_smart_minimum_interval_secs"
+  },
+  {
+    "message": "meshtastic.Config.PositionConfig",
+    "tag": 12,
+    "field": "gps_en_gpio"
+  },
+  {
+    "message": "meshtastic.Config.PositionConfig",
+    "tag": 13,
+    "field": "gps_mode"
+  },
+  {
+    "message": "meshtastic.Config.PowerConfig",
+    "tag": 1,
+    "field": "is_power_saving"
+  },
+  {
+    "message": "meshtastic.Config.PowerConfig",
+    "tag": 2,
+    "field": "on_battery_shutdown_after_secs"
+  },
+  {
+    "message": "meshtastic.Config.PowerConfig",
+    "tag": 3,
+    "field": "adc_multiplier_override"
+  },
+  {
+    "message": "meshtastic.Config.PowerConfig",
+    "tag": 4,
+    "field": "wait_bluetooth_secs"
+  },
+  {
+    "message": "meshtastic.Config.PowerConfig",
+    "tag": 6,
+    "field": "sds_secs"
+  },
+  {
+    "message": "meshtastic.Config.PowerConfig",
+    "tag": 7,
+    "field": "ls_secs"
+  },
+  {
+    "message": "meshtastic.Config.PowerConfig",
+    "tag": 8,
+    "field": "min_wake_secs"
+  },
+  {
+    "message": "meshtastic.Config.PowerConfig",
+    "tag": 9,
+    "field": "device_battery_ina_address"
+  },
+  {
+    "message": "meshtastic.Config.PowerConfig",
+    "tag": 32,
+    "field": "powermon_enables"
+  },
+  {
+    "message": "meshtastic.Config.SecurityConfig",
+    "tag": 1,
+    "field": "public_key"
+  },
+  {
+    "message": "meshtastic.Config.SecurityConfig",
+    "tag": 2,
+    "field": "private_key"
+  },
+  {
+    "message": "meshtastic.Config.SecurityConfig",
+    "tag": 4,
+    "field": "is_managed"
+  },
+  {
+    "message": "meshtastic.Config.SecurityConfig",
+    "tag": 5,
+    "field": "serial_enabled"
+  },
+  {
+    "message": "meshtastic.Config.SecurityConfig",
+    "tag": 6,
+    "field": "debug_log_api_enabled"
+  },
+  {
+    "message": "meshtastic.Config.SecurityConfig",
+    "tag": 8,
+    "field": "admin_channel_enabled"
+  },
+  {
+    "message": "meshtastic.Config.SecurityConfig",
+    "tag": 9,
+    "field": "packet_signature_policy"
+  },
+  {
+    "message": "meshtastic.Config.SecurityConfig",
+    "tag": 3,
+    "field": "admin_key"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.AmbientLightingConfig",
+    "tag": 1,
+    "field": "led_state"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.AmbientLightingConfig",
+    "tag": 2,
+    "field": "current"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.AmbientLightingConfig",
+    "tag": 3,
+    "field": "red"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.AmbientLightingConfig",
+    "tag": 4,
+    "field": "green"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.AmbientLightingConfig",
+    "tag": 5,
+    "field": "blue"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.AudioConfig",
+    "tag": 1,
+    "field": "codec2_enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.AudioConfig",
+    "tag": 2,
+    "field": "ptt_pin"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.AudioConfig",
+    "tag": 3,
+    "field": "bitrate"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.AudioConfig",
+    "tag": 4,
+    "field": "i2s_ws"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.AudioConfig",
+    "tag": 5,
+    "field": "i2s_sd"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.AudioConfig",
+    "tag": 6,
+    "field": "i2s_din"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.AudioConfig",
+    "tag": 7,
+    "field": "i2s_sck"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.CannedMessageConfig",
+    "tag": 1,
+    "field": "rotary1_enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.CannedMessageConfig",
+    "tag": 2,
+    "field": "inputbroker_pin_a"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.CannedMessageConfig",
+    "tag": 3,
+    "field": "inputbroker_pin_b"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.CannedMessageConfig",
+    "tag": 4,
+    "field": "inputbroker_pin_press"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.CannedMessageConfig",
+    "tag": 5,
+    "field": "inputbroker_event_cw"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.CannedMessageConfig",
+    "tag": 6,
+    "field": "inputbroker_event_ccw"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.CannedMessageConfig",
+    "tag": 7,
+    "field": "inputbroker_event_press"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.CannedMessageConfig",
+    "tag": 8,
+    "field": "updown1_enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.CannedMessageConfig",
+    "tag": 9,
+    "field": "enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.CannedMessageConfig",
+    "tag": 10,
+    "field": "allow_input_source"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.CannedMessageConfig",
+    "tag": 11,
+    "field": "send_bell"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.DetectionSensorConfig",
+    "tag": 1,
+    "field": "enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.DetectionSensorConfig",
+    "tag": 2,
+    "field": "minimum_broadcast_secs"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.DetectionSensorConfig",
+    "tag": 3,
+    "field": "state_broadcast_secs"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.DetectionSensorConfig",
+    "tag": 4,
+    "field": "send_bell"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.DetectionSensorConfig",
+    "tag": 5,
+    "field": "name"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.DetectionSensorConfig",
+    "tag": 6,
+    "field": "monitor_pin"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.DetectionSensorConfig",
+    "tag": 7,
+    "field": "detection_trigger_type"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.DetectionSensorConfig",
+    "tag": 8,
+    "field": "use_pullup"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.ExternalNotificationConfig",
+    "tag": 1,
+    "field": "enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.ExternalNotificationConfig",
+    "tag": 2,
+    "field": "output_ms"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.ExternalNotificationConfig",
+    "tag": 3,
+    "field": "output"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.ExternalNotificationConfig",
+    "tag": 8,
+    "field": "output_vibra"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.ExternalNotificationConfig",
+    "tag": 9,
+    "field": "output_buzzer"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.ExternalNotificationConfig",
+    "tag": 4,
+    "field": "active"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.ExternalNotificationConfig",
+    "tag": 5,
+    "field": "alert_message"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.ExternalNotificationConfig",
+    "tag": 10,
+    "field": "alert_message_vibra"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.ExternalNotificationConfig",
+    "tag": 11,
+    "field": "alert_message_buzzer"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.ExternalNotificationConfig",
+    "tag": 6,
+    "field": "alert_bell"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.ExternalNotificationConfig",
+    "tag": 12,
+    "field": "alert_bell_vibra"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.ExternalNotificationConfig",
+    "tag": 13,
+    "field": "alert_bell_buzzer"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.ExternalNotificationConfig",
+    "tag": 7,
+    "field": "use_pwm"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.ExternalNotificationConfig",
+    "tag": 14,
+    "field": "nag_timeout"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.ExternalNotificationConfig",
+    "tag": 15,
+    "field": "use_i2s_as_buzzer"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MQTTConfig",
+    "tag": 1,
+    "field": "enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MQTTConfig",
+    "tag": 2,
+    "field": "address"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MQTTConfig",
+    "tag": 3,
+    "field": "username"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MQTTConfig",
+    "tag": 4,
+    "field": "password"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MQTTConfig",
+    "tag": 5,
+    "field": "encryption_enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MQTTConfig",
+    "tag": 6,
+    "field": "json_enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MQTTConfig",
+    "tag": 7,
+    "field": "tls_enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MQTTConfig",
+    "tag": 8,
+    "field": "root"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MQTTConfig",
+    "tag": 9,
+    "field": "proxy_to_client_enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MQTTConfig",
+    "tag": 10,
+    "field": "map_reporting_enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MQTTConfig",
+    "tag": 11,
+    "field": "map_report_settings"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MQTTConfig",
+    "tag": 1,
+    "field": "map_report_settings.publish_interval_secs"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MQTTConfig",
+    "tag": 2,
+    "field": "map_report_settings.position_precision"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MQTTConfig",
+    "tag": 3,
+    "field": "map_report_settings.should_report_location"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MapReportSettings",
+    "tag": 1,
+    "field": "publish_interval_secs"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MapReportSettings",
+    "tag": 2,
+    "field": "position_precision"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MapReportSettings",
+    "tag": 3,
+    "field": "should_report_location"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MeshBeaconConfig",
+    "tag": 1,
+    "field": "flags"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MeshBeaconConfig",
+    "tag": 2,
+    "field": "broadcast_offer_frequency_slot"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MeshBeaconConfig",
+    "tag": 4,
+    "field": "broadcast_message"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MeshBeaconConfig",
+    "tag": 5,
+    "field": "broadcast_offer_channel"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MeshBeaconConfig",
+    "tag": 1,
+    "field": "broadcast_offer_channel.channel_num"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MeshBeaconConfig",
+    "tag": 2,
+    "field": "broadcast_offer_channel.psk"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MeshBeaconConfig",
+    "tag": 3,
+    "field": "broadcast_offer_channel.name"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MeshBeaconConfig",
+    "tag": 4,
+    "field": "broadcast_offer_channel.id"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MeshBeaconConfig",
+    "tag": 5,
+    "field": "broadcast_offer_channel.uplink_enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MeshBeaconConfig",
+    "tag": 6,
+    "field": "broadcast_offer_channel.downlink_enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MeshBeaconConfig",
+    "tag": 7,
+    "field": "broadcast_offer_channel.module_settings"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MeshBeaconConfig",
+    "tag": 8,
+    "field": "broadcast_offer_channel.use_aead"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MeshBeaconConfig",
+    "tag": 6,
+    "field": "broadcast_offer_region"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MeshBeaconConfig",
+    "tag": 7,
+    "field": "broadcast_offer_preset"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MeshBeaconConfig",
+    "tag": 11,
+    "field": "broadcast_interval_secs"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MeshBeaconConfig",
+    "tag": 13,
+    "field": "broadcast_targets"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MeshBeaconConfig.BroadcastTarget",
+    "tag": 1,
+    "field": "preset"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MeshBeaconConfig.BroadcastTarget",
+    "tag": 2,
+    "field": "region"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MeshBeaconConfig.BroadcastTarget",
+    "tag": 4,
+    "field": "channel_index"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.MeshBeaconConfig.BroadcastTarget",
+    "tag": 5,
+    "field": "frequency_slot"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.NeighborInfoConfig",
+    "tag": 1,
+    "field": "enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.NeighborInfoConfig",
+    "tag": 2,
+    "field": "update_interval"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.NeighborInfoConfig",
+    "tag": 3,
+    "field": "transmit_over_lora"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.PaxcounterConfig",
+    "tag": 1,
+    "field": "enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.PaxcounterConfig",
+    "tag": 2,
+    "field": "paxcounter_update_interval"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.PaxcounterConfig",
+    "tag": 3,
+    "field": "wifi_threshold"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.PaxcounterConfig",
+    "tag": 4,
+    "field": "ble_threshold"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.RangeTestConfig",
+    "tag": 1,
+    "field": "enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.RangeTestConfig",
+    "tag": 2,
+    "field": "sender"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.RangeTestConfig",
+    "tag": 3,
+    "field": "save"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.RangeTestConfig",
+    "tag": 4,
+    "field": "clear_on_reboot"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.RemoteHardwareConfig",
+    "tag": 1,
+    "field": "enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.RemoteHardwareConfig",
+    "tag": 2,
+    "field": "allow_undefined_pin_access"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.RemoteHardwareConfig",
+    "tag": 3,
+    "field": "available_pins"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.SerialConfig",
+    "tag": 1,
+    "field": "enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.SerialConfig",
+    "tag": 2,
+    "field": "echo"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.SerialConfig",
+    "tag": 3,
+    "field": "rxd"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.SerialConfig",
+    "tag": 4,
+    "field": "txd"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.SerialConfig",
+    "tag": 5,
+    "field": "baud"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.SerialConfig",
+    "tag": 6,
+    "field": "timeout"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.SerialConfig",
+    "tag": 7,
+    "field": "mode"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.SerialConfig",
+    "tag": 8,
+    "field": "override_console_serial_port"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.StatusMessageConfig",
+    "tag": 1,
+    "field": "node_status"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.StoreForwardConfig",
+    "tag": 1,
+    "field": "enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.StoreForwardConfig",
+    "tag": 2,
+    "field": "heartbeat"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.StoreForwardConfig",
+    "tag": 3,
+    "field": "records"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.StoreForwardConfig",
+    "tag": 4,
+    "field": "history_return_max"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.StoreForwardConfig",
+    "tag": 5,
+    "field": "history_return_window"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.StoreForwardConfig",
+    "tag": 6,
+    "field": "is_server"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TAKConfig",
+    "tag": 1,
+    "field": "team"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TAKConfig",
+    "tag": 2,
+    "field": "role"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TelemetryConfig",
+    "tag": 1,
+    "field": "device_update_interval"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TelemetryConfig",
+    "tag": 2,
+    "field": "environment_update_interval"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TelemetryConfig",
+    "tag": 3,
+    "field": "environment_measurement_enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TelemetryConfig",
+    "tag": 4,
+    "field": "environment_screen_enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TelemetryConfig",
+    "tag": 5,
+    "field": "environment_display_fahrenheit"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TelemetryConfig",
+    "tag": 6,
+    "field": "air_quality_enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TelemetryConfig",
+    "tag": 7,
+    "field": "air_quality_interval"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TelemetryConfig",
+    "tag": 8,
+    "field": "power_measurement_enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TelemetryConfig",
+    "tag": 9,
+    "field": "power_update_interval"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TelemetryConfig",
+    "tag": 10,
+    "field": "power_screen_enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TelemetryConfig",
+    "tag": 11,
+    "field": "health_measurement_enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TelemetryConfig",
+    "tag": 12,
+    "field": "health_update_interval"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TelemetryConfig",
+    "tag": 13,
+    "field": "health_screen_enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TelemetryConfig",
+    "tag": 14,
+    "field": "device_telemetry_enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TelemetryConfig",
+    "tag": 15,
+    "field": "air_quality_screen_enabled"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TrafficManagementConfig",
+    "tag": 4,
+    "field": "position_min_interval_secs"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TrafficManagementConfig",
+    "tag": 6,
+    "field": "nodeinfo_direct_response_max_hops"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TrafficManagementConfig",
+    "tag": 8,
+    "field": "rate_limit_window_secs"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TrafficManagementConfig",
+    "tag": 9,
+    "field": "rate_limit_max_packets"
+  },
+  {
+    "message": "meshtastic.ModuleConfig.TrafficManagementConfig",
+    "tag": 11,
+    "field": "unknown_packet_threshold"
+  }
+]

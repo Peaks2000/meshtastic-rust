@@ -1,0 +1,34 @@
+window { background: @theme_bg_color; }
+.workspace { background: @theme_bg_color; color: @theme_fg_color; }
+.sidebar { background: alpha(@theme_fg_color, 0.035); border-right: 1px solid alpha(@theme_fg_color, 0.10); }
+.brand { font-size: 19px; font-weight: 800; letter-spacing: 1px; color: #67ce95; }
+.eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; opacity: 0.55; }
+.muted { opacity: 0.65; font-size: 12px; }
+.page-title { font-size: 27px; font-weight: 750; }
+.section-title { font-size: 19px; font-weight: 700; }
+.page-header { border-bottom: 1px solid alpha(@theme_fg_color, 0.08); }
+.status { border-radius: 20px; padding: 7px 13px; background: alpha(@theme_fg_color, 0.06); font-size: 12px; }
+.status.connected { color: #69d89c; background: alpha(#69d89c, 0.10); }
+.nav-button { padding: 13px 15px; border: 0; box-shadow: none; background: transparent; border-radius: 10px; font-weight: 600; }
+.nav-button:checked { background: alpha(#69d89c, 0.14); color: #69d89c; }
+.nav-button:hover { background: alpha(@theme_fg_color, 0.07); }
+.card { padding: 22px; border-radius: 14px; border: 1px solid alpha(@theme_fg_color, 0.11); background: alpha(@theme_fg_color, 0.025); }
+.transport-tab { padding: 12px 24px; border-radius: 8px; }
+button.suggested-action { background: #55bb82; color: #10251a; border: 0; padding: 11px 18px; font-weight: 700; box-shadow: none; }
+button.suggested-action:hover { background: #6bce97; }
+button.suggested-action:disabled { opacity: 0.45; }
+entry, dropdown, combobox { min-height: 34px; }
+.notice { background: alpha(#e8b85e, 0.13); border-bottom: 1px solid alpha(#e8b85e, 0.25); }
+.node-row { padding: 16px; }
+.node-avatar { min-width: 46px; min-height: 46px; border-radius: 14px; background: alpha(#69d89c, 0.13); color: #69d89c; font-weight: 750; }
+.message { border-radius: 13px; background: alpha(@theme_fg_color, 0.055); padding: 14px 17px; }
+.message.outgoing { background: alpha(#69d89c, 0.12); }
+.field-row { padding: 14px 0; border-bottom: 1px solid alpha(@theme_fg_color, 0.07); }
+.field-label { font-weight: 600; }
+.field-error { color: #f18b82; font-size: 12px; }
+.settings-categories { border-right: 1px solid alpha(@theme_fg_color, 0.09); padding: 12px; }
+.settings-categories row { border-radius: 8px; padding: 8px 12px; }
+.settings-categories row:selected { background: alpha(#69d89c, 0.14); color: #69d89c; }
+.empty-icon { font-size: 46px; color: #69d89c; }
+.console { font-family: monospace; font-size: 12px; padding: 14px; background: alpha(@theme_fg_color, 0.03); }
+.back { padding: 8px 12px; }
