@@ -11,6 +11,9 @@ A native Rust and GTK4 desktop client for Meshtastic nodes.
 - ESP32 firmware updates and factory reset + flash, with backups and verification.
 - UF2 updates with automatic drive detection.
 
+## Pull Requests
+  Please do make pull requests if something does not work. I do not care if you use AI as long as the code is not complete rubbish.
+
 ## Build and run
 
 Requires Rust, GTK 4.12+, and GTK development tools. Protoc is bundled.
