@@ -16,6 +16,7 @@ const UF2_MAGIC: [u8; 8] = [0x55, 0x46, 0x32, 0x0a, 0x57, 0x51, 0x5d, 0x9e];
 #[derive(Clone, Debug)]
 pub struct UsbTarget {
     pub board: String,
+    pub firmware_target: Option<String>,
     pub node: u32,
     pub port: String,
     pub recovery_chip: Option<String>,
@@ -140,6 +141,7 @@ pub fn prepare_recovery(
                 firmware,
                 Some(UsbTarget {
                     board: firmware_board(name)?,
+                    firmware_target: None,
                     node: *node,
                     port: port.clone(),
                     recovery_chip: Some(chip.clone()),
@@ -185,7 +187,7 @@ fn prepare_inner(
         Some("bin") => {
             let target =
                 target.context("Connect to the node over USB first so its board can be checked")?;
-            if normalize(&target.board) != board {
+            if normalize(target.firmware_target.as_deref().unwrap_or(&target.board)) != board {
                 bail!(
                     "Firmware does not match the connected {} node",
                     target.board

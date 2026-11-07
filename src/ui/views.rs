@@ -4,7 +4,6 @@ use crate::{
     protocol::{self as p},
     settings,
 };
-use std::path::PathBuf;
 
 pub fn nodes_page(ui: &Rc<Ui>) -> gtk::Box {
     let page = gtk::Box::new(gtk::Orientation::Vertical, 20);
@@ -501,19 +500,16 @@ pub fn flash_page(ui: &Rc<Ui>) -> gtk::ScrolledWindow {
             });
         }
     });
-    let file = Rc::new(RefCell::new(None::<PathBuf>));
-    let file_label = label("No firmware selected", "muted");
-    file_label.set_ellipsize(gtk::pango::EllipsizeMode::Middle);
+    let picker = super::firmware::Picker::build(ui, &options);
+    *ui.firmware.borrow_mut() = Some(picker.clone());
     let choose_file = button("Choose firmware file…", "");
     options.append(&choose_file);
-    options.append(&file_label);
     let weak = Rc::downgrade(ui);
-    let chosen = file.clone();
+    let chosen = picker.clone();
     choose_file.connect_clicked(move |_| {
         if let Some(ui) = weak.upgrade() {
             let window = ui.window.clone();
             let chosen = chosen.clone();
-            let file_label = file_label.clone();
             glib::MainContext::default().spawn_local(async move {
                 let dialog = gtk::FileDialog::builder()
                     .title("Choose the firmware for your exact board")
@@ -526,8 +522,7 @@ pub fn flash_page(ui: &Rc<Ui>) -> gtk::ScrolledWindow {
                 if let Ok(file) = dialog.open_future(Some(&window)).await
                     && let Some(path) = file.path()
                 {
-                    file_label.set_text(&path.display().to_string());
-                    *chosen.borrow_mut() = Some(path);
+                    chosen.choose(path);
                 }
             });
         }
@@ -563,7 +558,7 @@ pub fn flash_page(ui: &Rc<Ui>) -> gtk::ScrolledWindow {
     let weak = Rc::downgrade(ui);
     ui.flash_button.connect_clicked(move |_| {
         if let Some(ui) = weak.upgrade() {
-            let Some(firmware) = file.borrow().clone() else {
+            let Some(firmware) = picker.file.borrow().clone() else {
                 ui.notice("Choose a firmware file first.");
                 return;
             };
@@ -574,6 +569,7 @@ pub fn flash_page(ui: &Rc<Ui>) -> gtk::ScrolledWindow {
                         if state.connected =>
                     {
                         Some(flashing::UsbTarget {
+                            firmware_target: picker.target(&firmware, &node.hardware),
                             board: node.hardware.clone(),
                             node: node.num,
                             port: port.clone(),

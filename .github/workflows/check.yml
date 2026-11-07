@@ -22,7 +22,7 @@ jobs:
       - name: Firmware helper tests (simulated hardware)
         run: |
           bash tools/setup-esptool.sh
-          tools/esptool/bin/python -m unittest discover -s tests -p 'test_flash_esp.py'
+          tools/esptool/bin/python -m unittest discover -s tests -p 'test_*.py'
       - name: Build and GTK smoke check
         run: |
           cargo build --locked

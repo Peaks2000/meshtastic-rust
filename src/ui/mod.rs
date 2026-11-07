@@ -1,4 +1,5 @@
 mod connection;
+mod firmware;
 mod forms;
 mod preferences;
 mod views;
@@ -52,6 +53,7 @@ pub struct Ui {
     pub bluetooth_devices: gtk::ComboBoxText,
     pub connect_button: gtk::Button,
     pub scan_button: gtk::Button,
+    pub firmware: RefCell<Option<Rc<firmware::Picker>>>,
     pub flash_busy: Cell<bool>,
     pub flash_button: gtk::Button,
     pub flash_log: gtk::TextBuffer,
@@ -131,6 +133,7 @@ pub fn build(app: &gtk::Application) {
         bluetooth_devices: gtk::ComboBoxText::with_entry(),
         connect_button: button("Connect to node", "suggested-action"),
         scan_button: button("Scan nearby", ""),
+        firmware: RefCell::new(None),
         flash_busy: Cell::new(false),
         flash_button: button("Flash firmware…", "suggested-action"),
         flash_log: gtk::TextBuffer::new(None),
@@ -318,6 +321,9 @@ impl Ui {
             _ => "Connect",
         };
         self.title.set_text(title);
+        if name == "flash" {
+            self.refresh_firmware();
+        }
         if let Some(root) = self.window.child() {
             update_nav(&root, name);
         }
@@ -539,6 +545,14 @@ impl Ui {
                     Err(error) => self.notice(&error),
                 }
             }
+        }
+        if self.stack.visible_child_name().as_deref() == Some("flash") {
+            self.refresh_firmware();
+        }
+    }
+    pub fn refresh_firmware(&self) {
+        if let Some(picker) = self.firmware.borrow().as_ref() {
+            picker.refresh(self, false);
         }
     }
     pub fn save_preferences(&self) {

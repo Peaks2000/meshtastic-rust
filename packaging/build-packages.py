@@ -41,7 +41,8 @@ def main():
     binary.chmod(0o755)
     helpers = root / 'usr/libexec/meshtastic-rust'
     helpers.mkdir(parents=True)
-    shutil.copy2(PROJECT / 'tools/flash-esp.py', helpers / 'flash-esp.py')
+    for name in ('flash-esp.py', 'firmware-download.py'):
+        shutil.copy2(PROJECT / 'tools' / name, helpers / name)
     runtime = helpers / 'python'
     (runtime / 'bin').mkdir(parents=True)
     shutil.copy2(args.python_runtime / 'bin/python3.12', runtime / 'bin/python3.12')

@@ -1,4 +1,5 @@
 mod backend;
+mod firmware;
 mod flashing;
 mod model;
 mod protocol;
