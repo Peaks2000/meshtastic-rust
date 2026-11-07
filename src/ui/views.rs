@@ -459,6 +459,12 @@ pub fn flash_page(ui: &Rc<Ui>) -> gtk::ScrolledWindow {
     let page = gtk::Box::new(gtk::Orientation::Vertical, 20);
     margins(&page, 28, 30);
     let options = card();
+    let mode = gtk::ComboBoxText::new();
+    mode.append(Some("update"), "Update — keep settings");
+    mode.append(Some("factory"), "Factory reset + flash (ESP32 USB)");
+    mode.set_tooltip_text(Some("Both modes use an application firmware file. Factory mode clears settings after firmware verification."));
+    mode.set_active(Some(0));
+    options.append(&mode);
     let file = Rc::new(RefCell::new(None::<PathBuf>));
     let file_label = label("No firmware selected", "muted");
     file_label.set_ellipsize(gtk::pango::EllipsizeMode::Middle);
@@ -545,7 +551,8 @@ pub fn flash_page(ui: &Rc<Ui>) -> gtk::ScrolledWindow {
                 .into_iter()
                 .filter_map(|mount| mount.root().path())
                 .collect::<Vec<_>>();
-            let plan = match flashing::prepare(&firmware, target, &mounts) {
+            let selected_mode = if mode.active_id().as_deref() == Some("factory") { flashing::FlashMode::Factory } else { flashing::FlashMode::Update };
+            let plan = match flashing::prepare(&firmware, target, &mounts, selected_mode) {
                 Ok(plan) => plan,
                 Err(error) => {
                     ui.notice(&format!("{error:#}"));
@@ -557,10 +564,11 @@ pub fn flash_page(ui: &Rc<Ui>) -> gtk::ScrolledWindow {
                 .modal(true)
                 .message_type(gtk::MessageType::Question)
                 .buttons(gtk::ButtonsType::OkCancel)
-                .text("Flash this firmware?")
+                .text(if plan.is_factory() { "Factory reset and flash?" } else { "Update firmware?" })
                 .secondary_text(format!(
-                    "{}\n\nKeep USB connected until the update finishes.",
-                    plan.summary()
+                    "{}\n\n{}",
+                    plan.summary(),
+                    if plan.is_factory() { "This clears settings, channels, keys, and saved node data after the firmware is verified. Keep USB connected." } else { "Settings will be kept. Keep USB connected until the update finishes." }
                 ))
                 .build();
             let weak = Rc::downgrade(&ui);

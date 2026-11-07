@@ -69,11 +69,20 @@ visibility, relative timestamps, startup connection, desktop notifications, and
 local message-history retention. Apple-only services (iCloud, Siri, CarPlay,
 WeatherKit, iOS app icon selection) do not have desktop equivalents here.
 
-## Firmware updates
+## Firmware flashing
 
 Select the original `.bin` or `.uf2` file from an
 [official Meshtastic release](https://github.com/meshtastic/firmware/releases).
 The page has no manual chip, offset, or update-drive fields.
+
+Choose **Update** to keep settings, or **Factory reset + flash (ESP32 USB)** to
+restore defaults. Both modes use the original application `.bin` file. Factory
+mode is a settings reset plus application flash; it does not install a merged
+factory/bootloader image. After a verified application write, it erases only the
+recognized NVS, filesystem, and OTA-selection data partitions and checks the erase.
+The confirmation explicitly warns that settings, channels, keys, and saved nodes
+will be cleared. Missing or unknown settings partitions block factory mode before
+any write. UF2 currently supports the update mode only.
 
 For ESP32 nodes, connect over USB first. Install the pinned Espressif helper once:
 
@@ -85,8 +94,9 @@ The updater checks the reported board against the release filename and detects t
 chip from the image. The helper validates the image checksum and SHA-256, checks the
 physical chip and node MAC, and refuses secure-boot/encrypted devices. It saves and
 verifies a full flash backup before checking the partition table and writing only
-the application at `0x10000`. It checks readback and verifies that flash outside
-the application partition is unchanged before restarting the node. Factory/erase,
+the application at `0x10000`. It checks readback and verifies that protected flash is unchanged before restarting
+the node. In Update mode this includes all saved settings; Factory mode explicitly
+allows the recognized settings partitions to be cleared. Factory/erase,
 bootloader, and merged images are blocked. No full erase or force option is used.
 The filename check is a compatibility check, not a cryptographic guarantee that an
 image is authentic. Only use firmware from a source you trust.

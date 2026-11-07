@@ -26,7 +26,7 @@ def checked_image(chip, data):
     return image
 
 
-def application_partition(backup, image_size):
+def partition_table(backup):
     table = backup[0x8000:0x9000]
     if len(table) != 0x1000:
         raise ValueError("Incomplete flash backup")
@@ -45,7 +45,7 @@ def application_partition(backup, image_size):
         _, kind, subtype, offset, size, label, flags = struct.unpack("<HBBII16sI", entry)
         if offset < 0x9000 or size == 0 or offset % 4096 or size % 4096 or offset + size > len(backup):
             raise ValueError("Invalid partition boundaries")
-        partitions.append((offset, offset + size, kind, subtype, flags))
+        partitions.append((offset, offset + size, kind, subtype, flags, label.rstrip(b"\x00")))
     if not footer_seen:
         raise ValueError("Cannot verify the partition table; nothing was written")
     previous = 0
@@ -53,6 +53,11 @@ def application_partition(backup, image_size):
         if offset < previous:
             raise ValueError("Overlapping partitions")
         previous = end
+    return partitions
+
+
+def application_partition(backup, image_size):
+    partitions = partition_table(backup)
     apps = [part for part in partitions if part[0] == APP_OFFSET and part[2] == 0]
     if len(apps) != 1 or apps[0][4] != 0:
         raise ValueError("No supported unencrypted application partition at 0x10000")
@@ -69,7 +74,34 @@ def write_private(path, data):
         os.fsync(output.fileno())
 
 
-def update(port, chip, node, image_path, backup_path):
+def factory_regions(backup):
+    regions = []
+    nvs = filesystem = False
+    for start, end, kind, subtype, flags, label in partition_table(backup):
+        if kind == 1 and subtype in (0, 2, 0x82):
+            if flags != 0:
+                raise ValueError("Cannot factory-reset encrypted data partitions")
+            nvs |= subtype == 2
+            filesystem |= subtype == 0x82
+            regions.append((start, end))
+    if not nvs or not filesystem:
+        raise ValueError("Cannot identify both settings partitions; factory reset blocked")
+    return regions
+
+
+def protected_regions(size, writable):
+    cursor = 0
+    regions = []
+    for start, end in sorted(writable):
+        if start > cursor:
+            regions.append((cursor, start))
+        cursor = max(cursor, end)
+    if cursor < size:
+        regions.append((cursor, size))
+    return regions
+
+
+def update(port, chip, node, image_path, backup_path, factory_reset=False):
     # Parse and validate the pinned image before opening the serial device.
     data = Path(image_path).read_bytes()
     image = checked_image(chip, data)
@@ -102,17 +134,25 @@ def update(port, chip, node, image_path, backup_path):
         app_start, app_end = application_partition(backup, len(data))
         if backup[app_start:app_start + 1] != b"\xe9":
             raise ValueError("No existing application found; this tool only performs updates")
-        # No factory image, bootloader write, eFuse change, force flag, or full erase.
+        reset_regions = factory_regions(backup) if factory_reset else []
+        # Both modes leave the bootloader and partition table untouched.
         print("Updating application…", flush=True)
         write_started = True
         esptool.write_flash(esp, [(app_start, data)], flash_size="keep", flash_mode="keep",
                             flash_freq="keep", erase_all=False, force=False, compress=True)
         esptool.verify_flash(esp, [(app_start, data)], flash_size="keep", flash_mode="keep", flash_freq="keep")
-        # Also verify the bootloader, partition table, and all data outside the app.
-        for start, end in [(0, app_start), (app_end, size)]:
+        # Settings are erased only after the new application passes readback.
+        for start, end in reset_regions:
+            print("Restoring factory settings…", flush=True)
+            esptool.erase_region(esp, start, end - start, force=False)
+            if esp.flash_md5sum(start, end - start).lower() != hashlib.md5(b"\xff" * (end - start)).hexdigest():
+                raise ValueError("Factory reset verification failed")
+        # Verify all regions outside the explicitly allowed app/settings regions.
+        for start, end in protected_regions(size, [(app_start, app_end)] + reset_regions):
             if end > start and esp.flash_md5sum(start, end - start).lower() != hashlib.md5(backup[start:end]).hexdigest():
                 raise ValueError("Protected-region verification failed. Keep the backup for recovery")
-        print("Firmware verified. Bootloader and settings regions are unchanged.", flush=True)
+        print("Firmware and factory reset verified. Bootloader preserved." if factory_reset else
+              "Firmware verified. Bootloader and settings regions are unchanged.", flush=True)
         esp.hard_reset()
         reset_done = True
     finally:
@@ -134,9 +174,10 @@ def main():
     parser.add_argument("--node", type=int, required=True)
     parser.add_argument("--image", type=Path, required=True)
     parser.add_argument("--backup", type=Path, required=True)
+    parser.add_argument("--factory-reset", action="store_true")
     args = parser.parse_args()
     try:
-        update(args.port, args.chip, args.node, args.image, args.backup)
+        update(args.port, args.chip, args.node, args.image, args.backup, factory_reset=args.factory_reset)
     except Exception as error:
         print(f"Update stopped: {error}", file=sys.stderr)
         return 1

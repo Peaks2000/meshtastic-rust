@@ -1,4 +1,4 @@
-//! Update-only flashing. Images are pinned in memory before confirmation.
+//! Guarded firmware flashing. Images are pinned in memory before confirmation.
 use crate::{model::Event, storage};
 use anyhow::{Context, Result, bail};
 use std::{
@@ -20,9 +20,16 @@ pub struct UsbTarget {
     pub port: String,
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum FlashMode {
+    Update,
+    Factory,
+}
+
 #[derive(Clone)]
 pub enum FlashPlan {
     Esp {
+        mode: FlashMode,
         target: UsbTarget,
         chip: String,
         name: String,
@@ -37,6 +44,15 @@ pub enum FlashPlan {
     },
 }
 impl FlashPlan {
+    pub fn is_factory(&self) -> bool {
+        matches!(
+            self,
+            Self::Esp {
+                mode: FlashMode::Factory,
+                ..
+            }
+        )
+    }
     pub fn summary(&self) -> String {
         match self {
             Self::Esp { target, name, .. } => format!(
@@ -92,6 +108,7 @@ pub fn prepare(
     firmware: &Path,
     target: Option<UsbTarget>,
     mounts: &[PathBuf],
+    mode: FlashMode,
 ) -> Result<FlashPlan> {
     let metadata = fs::metadata(firmware).context("Choose a readable firmware file")?;
     if !metadata.is_file() || metadata.len() < 24 || metadata.len() > MAX_IMAGE {
@@ -122,6 +139,7 @@ pub fn prepare(
             let chip = esp_chip(&image)?.to_string();
             python().context("Install the flashing helper using tools/setup-esptool.sh")?;
             Ok(FlashPlan::Esp {
+                mode,
                 target,
                 chip,
                 name,
@@ -129,6 +147,11 @@ pub fn prepare(
             })
         }
         Some("uf2") => {
+            if mode == FlashMode::Factory {
+                bail!(
+                    "Factory reset + flash is supported for ESP32 USB nodes. Use Update for UF2 firmware."
+                );
+            }
             let info = validate_uf2(&image)?;
             let mut candidates = vec![];
             for volume in mounts.iter().collect::<BTreeSet<_>>() {
@@ -339,6 +362,7 @@ fn execute(plan: &FlashPlan, events: &Sender<Event>) -> Result<()> {
     let directory = backup_directory()?;
     match plan {
         FlashPlan::Esp {
+            mode,
             target,
             chip,
             name,
@@ -347,9 +371,18 @@ fn execute(plan: &FlashPlan, events: &Sender<Event>) -> Result<()> {
             let staged = directory.join(name);
             private_write(&staged, image)?;
             // One connection performs identity, security, backup, partition, write and readback checks.
-            let mut child = Command::new(python().context("Python/esptool is unavailable")?)
-                .arg("-u")
-                .arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("tools/flash-esp.py"))
+            let mut command = Command::new(python().context("Python/esptool is unavailable")?);
+            if *mode == FlashMode::Factory {
+                command
+                    .arg("-u")
+                    .arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("tools/flash-esp.py"))
+                    .arg("--factory-reset");
+            } else {
+                command
+                    .arg("-u")
+                    .arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("tools/flash-esp.py"));
+            }
+            let mut child = command
                 .args([
                     "--port",
                     &target.port,

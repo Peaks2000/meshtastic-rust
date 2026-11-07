@@ -80,7 +80,7 @@ pub fn build(app: &gtk::Application) {
         window: gtk::ApplicationWindow::builder()
             .application(app)
             .icon_name("io.github.meshtasticgtk.Client")
-            .title("Meshtastic · Rust Client")
+            .title("Meshtastic")
             .default_width(1180)
             .default_height(820)
             .build(),

@@ -32,6 +32,8 @@ def flash_bytes():
     entries += b"\xeb\xeb" + b"\xff" * 14 + hashlib.md5(entries).digest()
     data[0x8000:0x8000 + len(entries)] = entries
     data[0x10000] = 0xE9
+    data[0x9000:0x9010] = b"saved nvs config"
+    data[0x80000:0x80010] = b"saved filesystem"
     return data
 
 
@@ -76,6 +78,14 @@ class FlashGuards(unittest.TestCase):
         self.read = self.mock("read_flash", side_effect=lambda *_: bytes(self.esp.data))
         self.write = self.mock("write_flash", side_effect=self.write_flash)
         self.verify = self.mock("verify_flash", side_effect=self.verify_flash)
+        self.erase = self.mock("erase_region", side_effect=self.erase_region)
+
+    def erase_region(self, esp, address, size, **kwargs):
+        self.assertTrue(self.backup.is_file())
+        self.assertTrue(self.verify.called, "Reset started before firmware verification")
+        self.assertFalse(kwargs["force"])
+        self.assertIn((address, address + size), [(0x9000, 0xF000), (0x80000, 0x100000)])
+        esp.data[address:address + size] = b"\xff" * size
 
     def mock(self, name, **kwargs):
         patcher = patch.object(updater.esptool, name, **kwargs)
@@ -115,6 +125,32 @@ class FlashGuards(unittest.TestCase):
         self.verify.assert_called_once()
         self.esp.hard_reset.assert_called_once()
         self.esp._port.close.assert_called_once()
+        self.erase.assert_not_called()
+
+    def test_factory_mode_clears_only_settings_after_firmware_verification(self):
+        before = bytes(self.esp.data)
+        updater.update("FAKE", "esp32s3", 0xA1B2C3D4, self.image, self.backup, factory_reset=True)
+        self.assertEqual(self.backup.read_bytes(), before)
+        self.assertEqual(self.esp.data[:0x9000], before[:0x9000])
+        self.assertEqual(self.esp.data[0xF000:0x10000], before[0xF000:0x10000])
+        self.assertEqual(self.esp.data[0x9000:0xF000], b"\xff" * 0x6000)
+        self.assertEqual(self.esp.data[0x80000:], b"\xff" * 0x80000)
+        self.assertEqual(self.erase.call_count, 2)
+
+    def test_factory_mode_does_not_erase_settings_when_firmware_verification_fails(self):
+        self.verify.side_effect = ValueError("Readback mismatch")
+        with self.assertRaisesRegex(ValueError, "Readback mismatch"):
+            updater.update("FAKE", "esp32s3", 0xA1B2C3D4, self.image, self.backup, factory_reset=True)
+        self.erase.assert_not_called()
+
+    def test_factory_reset_refuses_unknown_partition_layout(self):
+        # Valid table, but filesystem uses an unsupported custom subtype.
+        self.esp.data[0x8000 + 2 * 32 + 3] = 0x83
+        self.esp.data[0x8000 + 3 * 32 + 16:0x8000 + 4 * 32] = hashlib.md5(self.esp.data[0x8000:0x8000 + 3 * 32]).digest()
+        with self.assertRaisesRegex(ValueError, "settings partitions"):
+            updater.update("FAKE", "esp32s3", 0xA1B2C3D4, self.image, self.backup, factory_reset=True)
+        self.write.assert_not_called()
+        self.erase.assert_not_called()
 
     def test_corrupt_digest_is_blocked_before_connecting(self):
         data = bytearray(self.image.read_bytes())
