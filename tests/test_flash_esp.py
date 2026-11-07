@@ -48,6 +48,7 @@ class FakeEsp:
         self.node = b"\x00\x00\xa1\xb2\xc3\xd4"
         self._port = Mock()
         self.hard_reset = Mock()
+        self.change_baud = Mock()
 
     def get_secure_boot_enabled(self):
         return self.secure
@@ -126,6 +127,33 @@ class FlashGuards(unittest.TestCase):
         self.esp.hard_reset.assert_called_once()
         self.esp._port.close.assert_called_once()
         self.erase.assert_not_called()
+
+    def test_transfer_speed_changes_before_backup_and_write(self):
+        def backup(esp, *_):
+            esp.change_baud.assert_called_once_with(460800)
+            self.write.assert_not_called()
+            return bytes(esp.data)
+        self.read.side_effect = backup
+        self.run_update()
+        self.detect.assert_called_once_with(port="FAKE", baud=115200, connect_mode="default-reset")
+        self.verify.assert_called_once()
+
+    def test_conservative_rate_does_not_switch_baud(self):
+        updater.update("FAKE", "esp32s3", 0xA1B2C3D4, self.image, self.backup, baud=115200)
+        self.esp.change_baud.assert_not_called()
+        self.verify.assert_called_once()
+
+    def test_failed_speed_switch_blocks_all_flash_writes(self):
+        self.esp.change_baud.side_effect = RuntimeError("Serial speed unsupported")
+        self.blocked()
+        self.read.assert_not_called()
+        self.erase.assert_not_called()
+        self.esp._port.close.assert_called_once()
+
+    def test_unsupported_baud_is_rejected_before_connecting(self):
+        with self.assertRaises(ValueError):
+            updater.update("FAKE", "esp32s3", 0xA1B2C3D4, self.image, self.backup, baud=123)
+        self.detect.assert_not_called()
 
     def test_factory_mode_clears_only_settings_after_firmware_verification(self):
         before = bytes(self.esp.data)

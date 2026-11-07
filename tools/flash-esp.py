@@ -124,7 +124,9 @@ def probe_recovery(port):
         connection.close()
 
 
-def update(port, chip, node, image_path, backup_path, factory_reset=False, recovery=False):
+def update(port, chip, node, image_path, backup_path, factory_reset=False, recovery=False, baud=460800):
+    if baud not in (115200, 460800, 921600):
+        raise ValueError("Unsupported flash transfer baud rate")
     # Parse and validate the pinned image before opening the serial device.
     data = Path(image_path).read_bytes()
     image = checked_image(chip, data)
@@ -147,11 +149,14 @@ def update(port, chip, node, image_path, backup_path, factory_reset=False, recov
         if int.from_bytes(mac[-4:], "big") != node:
             raise ValueError("The USB node identity changed; update blocked")
         esp = esp.run_stub()
+        # ROM synchronization stays at 115200; only the verified stub uses the faster rate.
+        if baud != 115200:
+            print(f"Switching flash transfer to {baud} baud…", flush=True)
+            esp.change_baud(baud)
         size = flash_size_bytes(esptool.detect_flash_size(esp))
         if size is None or size < 1024 * 1024 or size > 32 * 1024 * 1024:
             raise ValueError("Cannot safely determine flash capacity")
-        print("Backing up the node before writing…", flush=True)
-        # Stay at the conservative rate rather than assuming a fast USB bridge.
+        print(f"Backing up {size // (1024 * 1024)} MiB before writing ({baud} baud)…", flush=True)
         backup = esptool.read_flash(esp, 0, size)
         if backup is None or len(backup) != size:
             raise ValueError("Flash backup is incomplete; nothing was written")
@@ -215,11 +220,12 @@ def main():
     parser.add_argument("--node", type=int, required=True)
     parser.add_argument("--image", type=Path, required=True)
     parser.add_argument("--backup", type=Path, required=True)
+    parser.add_argument("--baud", type=int, choices=(115200, 460800, 921600), default=460800)
     parser.add_argument("--factory-reset", action="store_true")
     parser.add_argument("--recovery", action="store_true")
     args = parser.parse_args()
     try:
-        update(args.port, args.chip, args.node, args.image, args.backup, factory_reset=args.factory_reset, recovery=args.recovery)
+        update(args.port, args.chip, args.node, args.image, args.backup, factory_reset=args.factory_reset, recovery=args.recovery, baud=args.baud)
     except Exception as error:
         print(f"Update stopped: {error}", file=sys.stderr)
         return 1
