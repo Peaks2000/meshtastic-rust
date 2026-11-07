@@ -26,4 +26,4 @@ jobs:
       - name: Build and GTK smoke check
         run: |
           cargo build --locked
-          MESHTASTIC_UI_SMOKE=1 GSK_RENDERER=cairo xvfb-run -a ./target/debug/meshtastic-gtk
+          MESHTASTIC_UI_SMOKE=1 GSK_RENDERER=cairo xvfb-run -a ./target/debug/meshtastic-rust

@@ -12,6 +12,22 @@ mod ui;
 use gtk::prelude::*;
 
 fn main() -> gtk::glib::ExitCode {
+    if std::env::args().any(|arg| arg == "--version" || arg == "-V") {
+        println!("meshtastic-rust {}", env!("CARGO_PKG_VERSION"));
+        return gtk::glib::ExitCode::SUCCESS;
+    }
+    if std::env::args().any(|arg| arg == "--check-flasher") {
+        return match flashing::check_runtime() {
+            Ok(version) => {
+                println!("Flashing helper ready (esptool {version})");
+                gtk::glib::ExitCode::SUCCESS
+            }
+            Err(error) => {
+                eprintln!("{error:#}");
+                gtk::glib::ExitCode::FAILURE
+            }
+        };
+    }
     gtk::gio::resources_register_include!("meshtastic.gresource")
         .expect("Bundled application logos");
     if std::env::args().any(|arg| arg == "--probe-usb") {

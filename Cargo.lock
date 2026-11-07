@@ -904,8 +904,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "meshtastic-gtk"
-version = "0.1.0"
+name = "meshtastic-rust"
+version = "0.0.1"
 dependencies = [
  "anyhow",
  "base64",

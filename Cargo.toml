@@ -1,6 +1,6 @@
 [package]
-name = "meshtastic-gtk"
-version = "0.1.0"
+name = "meshtastic-rust"
+version = "0.0.1"
 edition = "2024"
 license = "GPL-3.0-only"
 description = "A native GTK4 Meshtastic client for USB, Wi-Fi and Bluetooth LE"

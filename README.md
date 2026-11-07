@@ -36,7 +36,7 @@ Build and launch:
 
 ```sh
 cargo build --release --locked
-./target/release/meshtastic-gtk
+./target/release/meshtastic-rust
 ```
 
 Optional ESP32 flashing helper:
@@ -53,7 +53,7 @@ From an MSYS2 UCRT64 shell with Rust installed:
 pacman -S mingw-w64-ucrt-x86_64-gtk4 mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-pkgconf
 rustup toolchain install stable-x86_64-pc-windows-gnu
 cargo +stable-x86_64-pc-windows-gnu build --release --locked
-./target/release/meshtastic-gtk.exe
+./target/release/meshtastic-rust.exe
 ```
 
 Keep the MSYS2 UCRT64 `bin` directory on PATH. Standalone distribution requires

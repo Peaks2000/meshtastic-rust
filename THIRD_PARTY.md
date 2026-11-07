@@ -17,5 +17,11 @@
   <https://github.com/meshtastic/rust> and <https://meshtastic.org/docs/development/>.
 * ESP32 flashing uses the official Espressif esptool:
   <https://github.com/espressif/esptool>.
+* Linux packages bundle CPython 3.12 from
+  <https://github.com/astral-sh/python-build-standalone> (Python-2.0).
+  The pinned archive and checksum are in `packaging/python-runtime.json`.
+  Python's licence is included under the private runtime's `lib/python3.12/`;
+  bundled flashing dependency versions are in `packaging/flasher-requirements.txt`,
+  with their licences retained in each dependency's `.dist-info` directory.
 
 Meshtastic is a trademark of Meshtastic LLC. This is an independent desktop client.

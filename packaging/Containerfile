@@ -1,0 +1,6 @@
+FROM docker.io/library/ubuntu:24.04
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential libgtk-4-dev libdbus-1-dev pkg-config ca-certificates \
+    dpkg-dev xvfb xauth dbus-x11 && rm -rf /var/lib/apt/lists/*
+WORKDIR /src

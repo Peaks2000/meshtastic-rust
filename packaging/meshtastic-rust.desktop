@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Meshtastic
+Comment=Meshtastic desktop client
+Exec=meshtastic-rust
+Icon=io.github.meshtasticgtk.Client
+Terminal=false
+Categories=Network;GTK;
+StartupNotify=true
+StartupWMClass=io.github.meshtasticgtk.Client

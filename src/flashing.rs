@@ -296,6 +296,12 @@ fn volume_matches(identity: &str, board: &str, family: u32) -> bool {
 }
 
 pub fn python() -> Option<PathBuf> {
+    if let Some(root) = installed_helpers() {
+        let path = root.join("python/bin/python3");
+        if path.is_file() {
+            return Some(path);
+        }
+    }
     let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("tools/esptool");
     for relative in ["bin/python", "Scripts/python.exe"] {
         let path = base.join(relative);
@@ -316,6 +322,35 @@ pub fn python() -> Option<PathBuf> {
         }
     }
     None
+}
+
+fn installed_helpers() -> Option<PathBuf> {
+    let executable = std::env::current_exe().ok()?;
+    let root = executable
+        .parent()?
+        .parent()?
+        .join("libexec/meshtastic-rust");
+    root.join("flash-esp.py").is_file().then_some(root)
+}
+
+fn flash_helper() -> PathBuf {
+    installed_helpers()
+        .map(|root| root.join("flash-esp.py"))
+        .unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).join("tools/flash-esp.py"))
+}
+
+pub fn check_runtime() -> Result<String> {
+    if !flash_helper().is_file() {
+        bail!("Flashing helper script is missing");
+    }
+    let output = Command::new(python().context("Flashing Python runtime is missing")?)
+        .args(["-I", "-c", "import esptool; print(esptool.__version__)"])
+        .output()
+        .context("Starting flashing runtime")?;
+    if !output.status.success() {
+        bail!("{}", String::from_utf8_lossy(&output.stderr).trim());
+    }
+    Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
 }
 
 fn private_write(path: &Path, data: &[u8]) -> Result<()> {
@@ -373,14 +408,9 @@ fn execute(plan: &FlashPlan, events: &Sender<Event>) -> Result<()> {
             // One connection performs identity, security, backup, partition, write and readback checks.
             let mut command = Command::new(python().context("Python/esptool is unavailable")?);
             if *mode == FlashMode::Factory {
-                command
-                    .arg("-u")
-                    .arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("tools/flash-esp.py"))
-                    .arg("--factory-reset");
+                command.arg("-u").arg(flash_helper()).arg("--factory-reset");
             } else {
-                command
-                    .arg("-u")
-                    .arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("tools/flash-esp.py"));
+                command.arg("-u").arg(flash_helper());
             }
             let mut child = command
                 .args([
