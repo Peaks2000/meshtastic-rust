@@ -240,7 +240,7 @@ fn sidebar(ui: &Rc<Ui>) -> gtk::Box {
         .expect("Compact wordmark dimensions");
     let logo = gtk::Picture::for_paintable(&gtk::gdk::Texture::for_pixbuf(&pixbuf));
     logo.set_content_fit(gtk::ContentFit::Contain);
-    logo.set_size_request(170, 22);
+    logo.set_size_request(170, 18);
     logo.set_halign(gtk::Align::Start);
     logo.set_tooltip_text(Some("Meshtastic"));
     brand.append(&logo);
